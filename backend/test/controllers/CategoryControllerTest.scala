@@ -12,6 +12,9 @@ import play.api.test._
 
 class CategoryControllerTest {
 
+  private val CATEGORIES_PATH = "/categories"
+  private val CONTENT_TYPE_HEADER = ("Content-Type", "application/json")
+
   private val controllerComponents = Helpers.stubControllerComponents()
   private val cache = mock(classOf[Cache[Category]])
   private val controller = new CategoryController(controllerComponents, cache)
@@ -24,7 +27,7 @@ class CategoryControllerTest {
   def testShowAll(): Unit = {
     when(cache.get).thenReturn(categories)
 
-    val result = controller.showAll().apply(FakeRequest(GET, "/categories"))
+    val result = controller.showAll().apply(FakeRequest(GET, CATEGORIES_PATH))
 
     assert(status(result) == OK)
     assert(contentAsJson(result) == Json.toJson(categories))
@@ -35,7 +38,7 @@ class CategoryControllerTest {
   def testShowById(): Unit = {
     when(cache.get).thenReturn(categories)
 
-    val result = controller.showById(1).apply(FakeRequest(GET, "/categories/1"))
+    val result = controller.showById(1).apply(FakeRequest(GET, s"$CATEGORIES_PATH/1"))
 
     assert(status(result) == OK)
     assert(contentAsJson(result) == Json.toJson(electronicsCategory))
@@ -45,7 +48,7 @@ class CategoryControllerTest {
   def testShowByIdNotFound(): Unit = {
     when(cache.get).thenReturn(categories)
 
-    val result = controller.showById(99).apply(FakeRequest(GET, "/categories/99"))
+    val result = controller.showById(99).apply(FakeRequest(GET, s"$CATEGORIES_PATH/99"))
 
     assert(status(result) == NOT_FOUND)
   }
@@ -54,8 +57,8 @@ class CategoryControllerTest {
   def testUpdate(): Unit = {
     val updatedCategory = Category(1, "Updated Electronics")
     val jsonBody = Json.toJson(updatedCategory)
-    val request = FakeRequest(PUT, "/categories")
-      .withHeaders("Content-Type" -> "application/json")
+    val request = FakeRequest(PUT, CATEGORIES_PATH)
+      .withHeaders(CONTENT_TYPE_HEADER)
       .withBody(jsonBody)
 
     val result = controller.update()(request)
@@ -67,8 +70,8 @@ class CategoryControllerTest {
   @Test
   def testUpdateInvalidJson(): Unit = {
     val invalidJson = Json.obj("invalid" -> "data")
-    val request = FakeRequest(PUT, "/categories")
-      .withHeaders("Content-Type" -> "application/json")
+    val request = FakeRequest(PUT, CATEGORIES_PATH)
+      .withHeaders(CONTENT_TYPE_HEADER)
       .withBody(invalidJson)
 
     val result = controller.update()(request)
@@ -78,7 +81,7 @@ class CategoryControllerTest {
 
   @Test
   def testDelete(): Unit = {
-    val result = controller.delete(1).apply(FakeRequest(DELETE, "/categories/1"))
+    val result = controller.delete(1).apply(FakeRequest(DELETE, s"$CATEGORIES_PATH/1"))
 
     assert(status(result) == OK)
     verify(cache).delete(1)
@@ -88,8 +91,8 @@ class CategoryControllerTest {
   def testAdd(): Unit = {
     val newCategory = Category(3, "Clothing")
     val jsonBody = Json.toJson(newCategory)
-    val request = FakeRequest(POST, "/categories")
-      .withHeaders("Content-Type" -> "application/json")
+    val request = FakeRequest(POST, CATEGORIES_PATH)
+      .withHeaders(CONTENT_TYPE_HEADER)
       .withBody(jsonBody)
 
     val result = controller.add()(request)
@@ -101,8 +104,8 @@ class CategoryControllerTest {
   @Test
   def testAddInvalidJson(): Unit = {
     val invalidJson = Json.obj("invalid" -> "data")
-    val request = FakeRequest(POST, "/categories")
-      .withHeaders("Content-Type" -> "application/json")
+    val request = FakeRequest(POST, CATEGORIES_PATH)
+      .withHeaders(CONTENT_TYPE_HEADER)
       .withBody(invalidJson)
 
     val result = controller.add()(request)
