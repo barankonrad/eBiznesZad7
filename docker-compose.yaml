@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "9000:9000"
+    environment:
+      - PLAY_HTTP_PORT=9000
+    restart: always
+
+  frontend:
+    build: ./client
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
